@@ -25,6 +25,7 @@ class App extends React.Component {
             <div className='container'>
               <Nav />
               <Route exact path="/" component={Posts} />
+              <Route path="/new" component={Posts} />
             </div>
           </div>
         </ThemeProvider>

@@ -1,10 +1,9 @@
 import React from 'react';
 
-import { getTopPosts, getPost } from '../utils/api'
+import { getTopPosts, getNewPosts } from '../utils/api'
 
 function Post({ post }) {
-  const { by, id, kids, time, title } = post
-  const key = id.toString()
+  const { by, kids, time, title } = post
   const date = new Date(time * 1000)
   const dateString = date.toLocaleDateString()
   const timeString = date.toLocaleTimeString()
@@ -28,30 +27,49 @@ export default class Posts extends React.Component {
       loading: true,
       posts: []
     }
+
+    this.fetchPosts = this.fetchPosts.bind(this)
+  }
+
+  async fetchPosts() {
+    let posts
+
+    if (this.props.match.url === '/') {
+      posts = await getTopPosts()
+    }
+
+    if (this.props.match.url === '/new') {
+      posts = await getNewPosts()
+    }
+
+    this.setState({
+      loading: false,
+      posts: posts,
+      error: null
+    })
   }
 
   componentDidMount() {
-    getTopPosts()
-      .then(postIds => {
-        postIds.slice(0, 50).map(postId => {
-          getPost(postId).then(post => this.setState(previousState => { return {
-            ...previousState,
-            posts: previousState.posts.concat(post)
-          }}))
-        })
+    try {
+      this.fetchPosts()
+    } catch(error) {
+      this.setState({
+        error,
+        loading: false
       })
-      .catch(err => {
-        console.log("ERROR", err)
-        this.setState({
-          error: err
-        })
-      })
-
+    }
   }
 
-
   render() {
-    return this.state.posts.length ? (this.state.posts.map(post => (
+    const { posts, loading, error } = this.state
+
+    if (loading) {
+      return <div>LOADING</div>
+    }
+    if (error) {
+      return <div></div>
+    }
+    return posts.length ? (posts.map(post => (
         <Post key={post.id.toString()} post={post} />
       ))) : (<div>LOADING</div>)
     }
