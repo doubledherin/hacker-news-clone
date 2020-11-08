@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 
 import { ThemeProvider } from './contexts/theme'
 import Nav from './components/Nav'
-import Posts from './components/Posts'
+import Feed from './components/Feed'
 import UserProfile from './components/UserProfile'
 
 import './index.css'
@@ -26,8 +26,8 @@ class App extends React.Component {
           <div className={this.state.theme}>
             <div className='container'>
               <Nav />
-              <Route exact path="/" component={Posts} />
-              <Route path="/new" component={Posts} />
+              <Route exact path="/" component={Feed} />
+              <Route path="/new" component={Feed} />
               <Route path="/user" component={UserProfile} />
             </div>
           </div>
