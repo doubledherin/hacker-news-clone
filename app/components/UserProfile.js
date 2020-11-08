@@ -3,7 +3,8 @@ import queryString from 'query-string'
 
 import Post from './Post'
 import Loading from './Loading'
-import { getUser } from '../utils/api'
+import { getUser, getPost } from '../utils/api'
+import { createMarkup } from '../utils/helpers'
 
 class UserProfile extends Component {
   constructor(props) {
@@ -22,7 +23,14 @@ class UserProfile extends Component {
   async fetchUser(userId) {
     const user = await getUser(userId)
     console.log("USER: ", user)
-    this.setState({ user })
+    const posts = await Promise.all(
+      user.submitted.slice(0, 50).map(
+        async postId => await getPost(postId)
+      )
+    )
+
+    this.setState({ user, posts })
+
   }
 
   isLoading() {
@@ -34,7 +42,7 @@ class UserProfile extends Component {
       const { id } = queryString.parse(this.props.location.search)
       this.fetchUser(id)
     } catch(error) {
-      this.setState({ error })
+      this.setState({ error, user: null })
     }
   }
 
@@ -44,6 +52,7 @@ class UserProfile extends Component {
       return <Loading />
     }
     const { about, created, karma, id, submitted } = this.state.user
+    console.log("USER PROFILE PROPS", this.props)
     const date = new Date(created * 1000)
     const dateString = date.toLocaleDateString()
     const timeString = date.toLocaleTimeString()
@@ -55,8 +64,9 @@ class UserProfile extends Component {
         <div className='meta-info-light'>
           joined <strong>{dateString}</strong>, <strong>{timeString}</strong> has <strong>{karma.toLocaleString()}</strong> karma
         </div>
-        <p>{about}</p>
+        { about && <p dangerouslySetInnerHTML={createMarkup(about)}/> }
         <h2>Posts</h2>
+        { this.state.posts.length && this.state.posts.map(post => <Post key={post.id.toString()} post={post} />)}
       </React.Fragment>
     )
   }

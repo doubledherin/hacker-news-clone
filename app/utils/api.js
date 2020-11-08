@@ -1,6 +1,5 @@
 const hackerNewsBaseUrl = 'https://hacker-news.firebaseio.com/v0/'
 
-
 export async function getPosts(path) {
   const postType = path === '/' ? 'topstories' : 'newstories'
   const postIds = await getIds(postType)
@@ -17,7 +16,7 @@ async function getIds(postType) {
   return data
 }
 
-async function getPost(id) {
+export async function getPost(id) {
   const response = await fetch(`${hackerNewsBaseUrl}item/${id}.json`)
   const data = await response.json()
   return data
