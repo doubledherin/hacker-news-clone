@@ -5,6 +5,8 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import { ThemeProvider } from './contexts/theme'
 import Nav from './components/Nav'
 import Posts from './components/Posts'
+import UserProfile from './components/UserProfile'
+
 import './index.css'
 
 class App extends React.Component {
@@ -26,6 +28,7 @@ class App extends React.Component {
               <Nav />
               <Route exact path="/" component={Posts} />
               <Route path="/new" component={Posts} />
+              <Route path="/user" component={UserProfile} />
             </div>
           </div>
         </ThemeProvider>

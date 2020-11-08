@@ -1,7 +1,19 @@
 import React from 'react';
+import { Link } from 'react-router-dom'
 
-import { getTopPosts, getNewPosts } from '../utils/api'
+import { getPosts } from '../utils/api'
 
+function UserLink(props) {
+  return (
+    <Link 
+      className='' 
+      to={{ 
+        pathname: '/user', 
+        search: `?id=${props.userName}`
+      }}
+    />
+  )
+}
 function Post({ post }) {
   const { by, kids, time, title } = post
   const date = new Date(time * 1000)
@@ -11,7 +23,7 @@ function Post({ post }) {
     <li className='post'>
       <a className='link' href={post.url}>{title}</a>
       <div className='meta-info-light'>
-        by {by} on {dateString}, {timeString} with {kids && kids.length || 0} comments
+        by <UserLink username={by} /> on {dateString}, {timeString} with {kids && kids.length || 0} comments
       </div>
     </li>
   )
@@ -32,16 +44,9 @@ export default class Posts extends React.Component {
   }
 
   async fetchPosts() {
-    let posts
 
-    if (this.props.match.url === '/') {
-      posts = await getTopPosts()
-    }
-
-    if (this.props.match.url === '/new') {
-      posts = await getNewPosts()
-    }
-
+    const posts = await getPosts(this.props.match.url)
+    
     this.setState({
       loading: false,
       posts: posts,
