@@ -18,7 +18,6 @@ function UserLink(props) {
 
 export default class Post extends React.Component {
   render() {
-    console.log("POST", this.props.post)
     const { post } = this.props
     const { by, kids, time, title } = post
     const date = new Date(time * 1000)

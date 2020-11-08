@@ -29,7 +29,7 @@ class UserProfile extends Component {
       )
     )
 
-    this.setState({ user, posts })
+    this.setState({ user, posts: posts.filter(post => post.type === 'story') })
 
   }
 
