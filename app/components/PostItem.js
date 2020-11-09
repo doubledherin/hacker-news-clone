@@ -1,6 +1,9 @@
 import React from 'react';
 
+
+import CommentLink from './CommentLink'
 import UserLink from './UserLink'
+import { getDate, getTime } from '../utils/helpers'
 
 export default class PostItem extends React.Component {
 
@@ -8,16 +11,15 @@ export default class PostItem extends React.Component {
     // debugger;
     const { post } = this.props
     const { by, kids, time, title } = post
-    const date = new Date(time * 1000)
-    const dateString = date.toLocaleDateString()
-    const timeString = date.toLocaleTimeString()
+    const dateString = getDate(time)
+    const timeString = getTime(time)
 
     return (
       <React.Fragment> 
         <li className='post'>
           <a className='link' href={post.url}>{title}</a>
           <div className='meta-info-light'>
-            by <UserLink userName={by} /> on {dateString}, {timeString} with {kids && kids.length || 0} comments
+            by <UserLink userName={by} /> on {dateString}, {timeString} with <CommentLink post={post} /> comments
           </div>
         </li>
       </React.Fragment>

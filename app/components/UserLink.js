@@ -5,7 +5,6 @@ const UserLink = (props) => {
   const { userName } = props
   return (
     <Link 
-      className='' 
       to={{ 
         pathname: '/user', 
         search: `?id=${userName}`
