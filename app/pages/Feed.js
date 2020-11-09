@@ -32,7 +32,7 @@ export default class Feed extends React.Component {
   }
 
   isLoading() {
-    return !this.state.posts && !this.state.error
+    return !this.state.posts.length && !this.state.error
   }
 
   componentDidMount() {
