@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import queryString from 'query-string'
 
-import Post from './Post'
-import Loading from './Loading'
+import PostItem from '../components/PostItem'
+import Loading from '../components/Loading'
 import { getUser, getPost } from '../utils/api'
 import { createMarkup } from '../utils/helpers'
 
@@ -22,7 +22,6 @@ class UserProfile extends Component {
 
   async fetchUser(userId) {
     const user = await getUser(userId)
-    console.log("USER: ", user)
     const posts = await Promise.all(
       user.submitted.slice(0, 50).map(
         async postId => await getPost(postId)
@@ -52,7 +51,6 @@ class UserProfile extends Component {
       return <Loading />
     }
     const { about, created, karma, id, submitted } = this.state.user
-    console.log("USER PROFILE PROPS", this.props)
     const date = new Date(created * 1000)
     const dateString = date.toLocaleDateString()
     const timeString = date.toLocaleTimeString()
@@ -66,7 +64,7 @@ class UserProfile extends Component {
         </div>
         { about && <p dangerouslySetInnerHTML={createMarkup(about)}/> }
         <h2>Posts</h2>
-        { this.state.posts.length && this.state.posts.map(post => <Post key={post.id.toString()} post={post} />)}
+        { this.state.posts.length && this.state.posts.map(post => <PostItem key={post.id.toString()} post={post} />)}
       </React.Fragment>
     )
   }

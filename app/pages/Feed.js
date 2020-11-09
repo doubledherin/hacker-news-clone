@@ -1,7 +1,7 @@
 import React from 'react';
 
-import Post from './Post'
-import Loading from './Loading'
+import PostItem from '../components/PostItem'
+import Loading from '../components/Loading'
 import { getPosts } from '../utils/api'
 
 export default class Feed extends React.Component {
@@ -47,7 +47,7 @@ export default class Feed extends React.Component {
         { this.isLoading() && <Loading /> }
         { error && <p className='center-text error'>{error}</p>}
         { !this.isLoading() &&  posts.map(post => (
-        <Post key={post.id.toString()} post={post} />
+        <PostItem key={post.id.toString()} post={post} />
         ))}
       </React.Fragment>
     )
