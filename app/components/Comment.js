@@ -3,6 +3,7 @@ import React from 'react'
 import Loading from './Loading'
 import PostItem from './PostItem'
 import { getPost } from '../utils/api'
+import { createMarkup } from '../utils/helpers'
 
 export default class Comment extends React.Component {
 
@@ -35,13 +36,14 @@ export default class Comment extends React.Component {
     }
   }
   render() {
+    const { comment } = this.state
     return (
       <React.Fragment>
         { !this.isLoading() && (
           <div className='comment'>
-            <pre>{JSON.stringify(this.state.comment, null, 2)}</pre>
-            <PostItem post={this.state.comment} />
-          </div>
+            <PostItem post={comment} />
+            <p dangerouslySetInnerHTML={createMarkup(comment.text)}/>
+         </div>
         )}
         { this.isLoading() && <Loading />}
       </React.Fragment>
