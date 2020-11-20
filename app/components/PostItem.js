@@ -8,7 +8,6 @@ import { getDate, getTime } from '../utils/helpers'
 export default class PostItem extends React.Component {
 
   render() {
-    // debugger;
     const { post } = this.props
     const { by, kids, time, title } = post
     const dateString = getDate(time)
