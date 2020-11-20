@@ -6,68 +6,84 @@ import Loading from '../components/Loading'
 import { getUser, getPost } from '../utils/api'
 import { createMarkup } from '../utils/helpers'
 
-class UserProfile extends Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      user: null,
+function userReducer(state, action) {
+  if (action.type === "fetchUserSuccess") {
+    return {
+      ...state,
       error: null,
-      posts: []
-    }
-
-    this.fetchUser = this.fetchUser.bind(this)
-    this.isLoading = this.isLoading.bind(this)
-  }
-
-  async fetchUser(userId) {
-    const user = await getUser(userId)
-    const posts = await Promise.all(
-      user.submitted.slice(0, 50).map(
-        async postId => await getPost(postId)
-      )
-    )
-
-    this.setState({ user, posts: posts.filter(post => post.type === 'story') })
-
-  }
-
-  isLoading() {
-    return !this.state.user && !this.state.error 
-  }
-
-  componentDidMount() {
-    try {
-      const { id } = queryString.parse(this.props.location.search)
-      this.fetchUser(id)
-    } catch(error) {
-      this.setState({ error, user: null })
+      user: action.user
     }
   }
 
-  render() {
-
-    if (this.isLoading()) {
-      return <Loading />
+  if (action.type === "fetchPostsSuccess") {
+    return {
+      ...state,
+      error: null,
+      posts: action.posts
     }
-    const { about, created, karma, id, submitted } = this.state.user
+  }
+
+  if (action.type === "error") {
+    return {
+      ...state,
+      error: action.error.message
+    }
+  }
+  throw new Error(`Action type ${action.type} is not supported.`)
+}
+
+export default function UserProfile({ location }) {
+  const { id } = queryString.parse(location.search)
+  const [ state, dispatch ] = React.useReducer(userReducer, {
+    error: null,
+    user: null,
+    posts: []
+  })
+
+  React.useEffect(
+    () => {
+      getUser(id)
+      .then(user => { 
+        dispatch({ type: "fetchUserSuccess", user })
+        Promise.all(user.submitted.slice(0, 50).map(getPost))
+          .then(posts => dispatch({ type: "fetchPostsSuccess", posts: posts.filter(post => post.type === 'story')  }))
+          .catch(error => dispatch({ type: "error", error }))
+      })
+      .catch(error => dispatch({ type: "error", error }))
+    },
+    [location]
+  )
+
+
+  const dateJoined = (created) => {
     const date = new Date(created * 1000)
-    const dateString = date.toLocaleDateString()
-    const timeString = date.toLocaleTimeString()
+    return date.toLocaleDateString()
+  }
+
+  const timeJoined = (created) => {
+    const date = new Date(created * 1000)
+    return date.toLocaleString()
+  }
+
+  if (!state.user && !state.error) {
+    return <Loading />
+  }
+  else {
+    const { user, posts } = state
+    const { created, karma, about } = user
+  
     return (
       <React.Fragment>
         <h1 className='header'>
           {id}
         </h1>
         <div className='meta-info-light'>
-          joined <strong>{dateString}</strong>, <strong>{timeString}</strong> has <strong>{karma.toLocaleString()}</strong> karma
+          joined <strong>{dateJoined(created)}</strong>, <strong>{timeJoined(created)}</strong> has <strong>{karma.toLocaleString()}</strong> karma
         </div>
         { about && <p dangerouslySetInnerHTML={createMarkup(about)}/> }
         <h2>Posts</h2>
-        { this.state.posts.length && this.state.posts.map(post => <PostItem key={post.id.toString()} post={post} />)}
+        { posts.length && posts.map(post => <PostItem key={post.id.toString()} post={post} />)}
       </React.Fragment>
     )
   }
 }
-
-export default UserProfile;
