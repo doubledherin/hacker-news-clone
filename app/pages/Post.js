@@ -6,47 +6,47 @@ import PostItem from '../components/PostItem'
 import Loading from '../components/Loading'
 import Comment from '../components/Comment'
 
-export default class Post extends React.Component {
-  constructor(props) {
-    super(props)
-    
-    this.state = {
-      post: null,
-      error: null
-    }
-
-    this.fetchPost = this.fetchPost.bind(this)
-    this.isLoading = this.isLoading.bind(this)
-  }
-
-  isLoading() {
-    return !this.state.post && !this.state.error
-  }
-
-  async fetchPost(postId) {
-    const post = await getPost(postId)
-    this.setState({ post })
-  }
-
-  componentDidMount() {
-    try {
-      const { id } = queryString.parse(this.props.location.search)
-      this.fetchPost(id)
-    } catch(error) {
-      this.setState({ error, post: null })
+function postReducer(state, action) {
+  if (action.type === "success") {
+    return {
+      error: null,
+      post: action.post
     }
   }
-
-  render() {
-    if (this.isLoading()) {
-      return <Loading />
+  if (action.type === "error") {
+    return {
+      error: error.message,
+      post: null
     }
-    const { post } = this.state
-    return (
-      <React.Fragment>
-        <PostItem post={post} />
-        { post.kids && post.kids.slice(0, 50).map(comment => <Comment key={comment} comment={comment}/>)}
-      </React.Fragment>
-    )
   }
+  throw new Error(`Action type ${action.type} not supported.`)
+}
+
+export default function Post ({ location }) {
+
+  React.useEffect(
+    () => {
+      const { id } = queryString.parse(location.search)
+      getPost(id)
+        .then(post => dispatch({ type: "success", post }))
+        .catch(error => dispatch({ type: "error", error }))
+    },
+    [location]
+  )
+
+  const [ state, dispatch ] = React.useReducer(postReducer, {
+    error: null,
+    post: null
+  })
+  
+  if (!state.error && !state.post) {
+    return <Loading />
+  }
+
+  return (
+    <React.Fragment>
+      <PostItem post={state.post} />
+      { state.post.kids && state.post.kids.slice(0, 50).map(comment => <Comment key={comment} comment={comment}/>)}
+    </React.Fragment>
+  )
 }
