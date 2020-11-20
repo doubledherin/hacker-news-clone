@@ -10,34 +10,25 @@ import Post from './pages/Post'
 
 import './index.css'
 
-class App extends React.Component {
-  state = {
-    theme: 'light',
-    toggleTheme: () => {
-      this.setState(({ theme }) => ({
-        theme: theme === 'light' ? 'dark' : 'light'
-      }))
-    }
-  }
+function App() {
+  const [ theme, setTheme ]  = React.useState('light')
+  const toggleTheme = () => setTheme(theme => theme === 'light' ? 'dark' : 'light')
 
-  render() {
-    return (
-      <Router>
-        <ThemeProvider value={this.state}>
-          <div className={this.state.theme}>
-            <div className='container'>
-              <Nav />
-              <Route exact path="/" component={Feed} />
-              <Route path="/new" component={Feed} />
-              <Route path="/user" component={UserProfile} />
-              <Route path="/post" component={Post} />
-            </div>
+  return (
+    <Router>
+      <ThemeProvider value={theme}>
+        <div className={theme}>
+          <div className='container'>
+            <Nav toggleTheme={toggleTheme}/>
+            <Route exact path="/" component={Feed} />
+            <Route path="/new" component={Feed} />
+            <Route path="/user" component={UserProfile} />
+            <Route path="/post" component={Post} />
           </div>
-        </ThemeProvider>
-      </Router>
-
-    )
-  }
+        </div>
+      </ThemeProvider>
+    </Router>
+  )
 }
 
 ReactDOM.render(
