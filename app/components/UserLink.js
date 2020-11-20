@@ -1,8 +1,7 @@
-import React from 'react';
+import React from 'react'
 import { Link } from 'react-router-dom'
 
-const UserLink = (props) => {
-  const { userName } = props
+export default function UserLink ({ userName }) {
   return (
     <Link 
       to={{ 
@@ -13,6 +12,4 @@ const UserLink = (props) => {
       {userName}
     </Link>
   )
-};
-
-export default UserLink
+}
