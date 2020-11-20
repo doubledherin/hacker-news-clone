@@ -5,48 +5,47 @@ import PostItem from './PostItem'
 import { getPost } from '../utils/api'
 import { createMarkup } from '../utils/helpers'
 
-export default class Comment extends React.Component {
-
-  constructor(props) {
-    super(props)
-    
-    this.state = {
+const commentReducer = (state, action) => {
+  if (action.type === "success") {
+    return {
+      error: null,
+      comment: action.comment
+    }
+  }
+  if (action.type === "error") {
+    return {
+      error: action.error.message,
       comment: null,
-      error: null
-    }
-
-    this.fetchComment = this.fetchComment.bind(this)
-    this.isLoading = this.isLoading.bind(this)
-  }
-
-  isLoading() {
-    return !this.state.comment && !this.state.error
-  }
-
-  async fetchComment(commentId) {
-    const comment = await getPost(commentId)
-    this.setState({ comment })
-  }
-
-  componentDidMount() {
-    try {
-      this.fetchComment(this.props.comment)
-    } catch(error) {
-      this.setState({ error, comment: null })
     }
   }
-  render() {
-    const { comment } = this.state
-    return (
-      <React.Fragment>
-        { !this.isLoading() && (
-          <div className='comment'>
-            <PostItem post={comment} />
-            <p dangerouslySetInnerHTML={createMarkup(comment.text)}/>
-         </div>
-        )}
-        { this.isLoading() && <Loading />}
-      </React.Fragment>
-    )
-  }
+  throw new Error(`Action type ${action.type} not supported`)
+}
+
+export default function Comment (props) {
+
+  const [ state, dispatch ] = React.useReducer(commentReducer, {
+    error: null,
+    comment: null,
+  })
+
+  React.useEffect(
+    () => getPost(props.comment)
+      .then(comment => dispatch({ type: "success", comment }))
+      .catch(error => dispatch({ type: "error", error })),
+    [props.comment]
+  )
+
+  const isLoading = () => !state.error && !state.comment
+
+  return (
+    <React.Fragment>
+      { !isLoading() && (
+        <div className='comment'>
+          <PostItem post={state.comment} />
+          <p dangerouslySetInnerHTML={createMarkup(state.comment.text)}/>
+       </div>
+      )}
+      { isLoading() && <Loading />}
+    </React.Fragment>
+  )
 }
