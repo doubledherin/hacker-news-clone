@@ -45,7 +45,7 @@ export default class Post extends React.Component {
     return (
       <React.Fragment>
         <PostItem post={post} />
-        { post.kids.slice(0, 50).map(comment => <Comment key={comment} comment={comment}/>)}
+        { post.kids && post.kids.slice(0, 50).map(comment => <Comment key={comment} comment={comment}/>)}
       </React.Fragment>
     )
   }

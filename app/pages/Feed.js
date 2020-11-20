@@ -4,52 +4,44 @@ import PostItem from '../components/PostItem'
 import Loading from '../components/Loading'
 import { getPosts } from '../utils/api'
 
-export default class Feed extends React.Component {
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      error: null,
-      posts: []
+const feedReducer = (state, action) => {
+  if (action.type === "success") {
+    return {
+      posts: action.posts,
+      error: null
     }
-
-    this.fetchPosts = this.fetchPosts.bind(this)
-    this.isLoading = this.isLoading.bind(this)
   }
-
-  async fetchPosts() {
-    try {
-      const posts = await getPosts(this.props.match.url)
-    
-      this.setState({
-        posts: posts,
-        error: null
-      })
-    } catch (error) {
-      this.setState({ error })
+  if (action.type === "error") {
+    return {
+      error: error.message,
+      posts: null
     }
-
   }
+} 
 
-  isLoading() {
-    return !this.state.posts.length && !this.state.error
-  }
+export default function Feed ({ match }) {
+  React.useEffect(() => {
+    getPosts(match.url)
+      .then(posts => dispatch({ type: "success", posts }))
+      .catch(error => dispatch({ type: "error", error }))
+    },
+    [match]
+  )
 
-  componentDidMount() {
-    this.fetchPosts()
-  }
+  const [ state, dispatch ] = React.useReducer(feedReducer, {
+    posts: null,
+    error: null,
+  })
 
-  render() {
-    const { posts, error } = this.state
+  const isLoading = () => !state.posts && !state.error 
 
-    return (
-      <React.Fragment>
-        { this.isLoading() && <Loading /> }
-        { error && <p className='center-text error'>{error}</p>}
-        { !this.isLoading() &&  posts.map(post => (
-        <PostItem key={post.id.toString()} post={post} />
-        ))}
-      </React.Fragment>
-    )
-  }
+  return (
+    <React.Fragment>
+      { isLoading() && <Loading /> }
+      { state.error && <p className='center-text error'>{error}</p>}
+      { !isLoading() &&  state.posts.map(post => (
+      <PostItem key={post.id.toString()} post={post} />
+      ))}
+    </React.Fragment>
+  )
 }
